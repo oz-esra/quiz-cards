@@ -1,4 +1,4 @@
-# 🧠 EduFlash — Akıllı Flashcard Quiz Uygulaması
+# 🧠 EduFlash — Akıllı Flashcard Quiz WEB Uygulaması
 
 > Gerçek zamanlı API entegrasyonu ile interaktif quiz deneyimi
 
