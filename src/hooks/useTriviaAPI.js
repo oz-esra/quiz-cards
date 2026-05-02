@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-// Open Trivia DB - Ücretsiz, API Key gerektirmez
+// Open Trivia DB - Free, no API key required
 const CATEGORIES_URL = 'https://opentdb.com/api_category.php'
 
 export function useTriviaCategories() {
@@ -12,7 +12,7 @@ export function useTriviaCategories() {
     const fetchCategories = async () => {
       try {
         const res = await fetch(CATEGORIES_URL)
-        if (!res.ok) throw new Error('Kategoriler yüklenemedi')
+        if (!res.ok) throw new Error('Categories could not be loaded')
         const data = await res.json()
         setCategories(data.trivia_categories)
       } catch (err) {
@@ -28,7 +28,6 @@ export function useTriviaCategories() {
 }
 
 export async function fetchQuestions({ categoryId, difficulty, amount }) {
-  // HTML entity decode helper
   const decode = (str) => {
     const txt = document.createElement('textarea')
     txt.innerHTML = str
@@ -43,18 +42,18 @@ export async function fetchQuestions({ categoryId, difficulty, amount }) {
   })
 
   const res = await fetch(`https://opentdb.com/api.php?${params}`)
-  if (!res.ok) throw new Error('Sorular yüklenemedi')
+  if (!res.ok) throw new Error('Questions could not be loaded')
 
   const data = await res.json()
 
   if (data.response_code === 5) {
-    throw new Error('Çok fazla istek gönderildi. Lütfen birkaç saniye bekleyin.')
-  }
-  if (data.response_code !== 0) {
-    throw new Error('Bu kategoride yeterli soru bulunamadı. Lütfen başka bir seçim yapın.')
+    throw new Error('Too many requests. Please wait a few seconds and try again.')
   }
 
-  // Şıkları karıştır ve decode et
+  if (data.response_code !== 0) {
+    throw new Error('Not enough questions found for this selection. Please choose another category or difficulty.')
+  }
+
   return data.results.map((q) => {
     const options = [...q.incorrect_answers, q.correct_answer]
       .map(decode)
