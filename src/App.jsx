@@ -4,7 +4,6 @@ import FlashCard from './components/FlashCard'
 import ScoreBoard from './components/ScoreBoard'
 import { fetchQuestions } from './hooks/useTriviaAPI'
 
-// Phase: 'setup' | 'quiz' | 'results'
 export default function App() {
   const [phase, setPhase] = useState('setup')
   const [questions, setQuestions] = useState([])
@@ -13,6 +12,7 @@ export default function App() {
   const [answers, setAnswers] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [theme, setTheme] = useState('dark')
 
   const startQuiz = async (settings) => {
     setLoading(true)
@@ -34,19 +34,15 @@ export default function App() {
   const handleAnswer = (isCorrect, question, selectedAnswer) => {
     if (isCorrect) setScore((s) => s + 1)
 
-    setAnswers((prev) => [
-      ...prev,
-      { question, selectedAnswer, isCorrect },
-    ])
+    setAnswers((prev) => [...prev, { question, selectedAnswer, isCorrect }])
 
-    // 1.2 saniye bekle, sonra sonraki soruya geç
     setTimeout(() => {
       if (currentIndex + 1 >= questions.length) {
         setPhase('results')
       } else {
         setCurrentIndex((i) => i + 1)
       }
-    }, 1200)
+    }, 1500)
   }
 
   const restart = () => {
@@ -55,33 +51,19 @@ export default function App() {
     setError(null)
   }
 
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    setTheme(next)
+    document.body.className = next
+  }
+
   return (
-    <div className="app">
-      {error && (
-        <div style={{
-          position: 'fixed',
-          top: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: 'rgba(248,113,113,0.1)',
-          border: '1px solid var(--coral)',
-          color: 'var(--coral)',
-          padding: '12px 20px',
-          borderRadius: '12px',
-          zIndex: 100,
-          fontSize: '0.9rem',
-          maxWidth: '400px',
-          textAlign: 'center',
-        }}>
-          ⚠️ {error}
-          <button
-            onClick={() => setError(null)}
-            style={{ marginLeft: '12px', background: 'none', border: 'none', color: 'var(--coral)', cursor: 'pointer', fontWeight: 700 }}
-          >
-            ✕
-          </button>
-        </div>
-      )}
+    <div className={`app ${theme}`}>
+      <button className="theme-toggle" onClick={toggleTheme}>
+        {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
+      </button>
+
+      {error && <div className="error-banner">⚠️ {error}</div>}
 
       {phase === 'setup' && (
         <CategorySelector onStart={startQuiz} loading={loading} />
@@ -93,19 +75,4 @@ export default function App() {
           question={questions[currentIndex]}
           onAnswer={handleAnswer}
           current={currentIndex + 1}
-          total={questions.length}
-          score={score}
-        />
-      )}
-
-      {phase === 'results' && (
-        <ScoreBoard
-          score={score}
-          total={questions.length}
-          answers={answers}
-          onRestart={restart}
-        />
-      )}
-    </div>
-  )
 }

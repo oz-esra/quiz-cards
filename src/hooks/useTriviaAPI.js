@@ -1,15 +1,4 @@
 import { useState, useEffect } from 'react'
-
-// Open Trivia DB - Free, no API key required
-const CATEGORIES_URL = 'https://opentdb.com/api_category.php'
-
-export function useTriviaCategories() {
-  const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  useEffect(() => {
-    const fetchCategories = async () => {
       try {
         const res = await fetch(CATEGORIES_URL)
         if (!res.ok) throw new Error('Categories could not be loaded')
@@ -47,11 +36,11 @@ export async function fetchQuestions({ categoryId, difficulty, amount }) {
   const data = await res.json()
 
   if (data.response_code === 5) {
-    throw new Error('Too many requests. Please wait a few seconds and try again.')
+    throw new Error('Too many requests. Please wait a few seconds.')
   }
 
   if (data.response_code !== 0) {
-    throw new Error('Not enough questions found for this selection. Please choose another category or difficulty.')
+    throw new Error('Not enough questions found. Try another category.')
   }
 
   return data.results.map((q) => {
